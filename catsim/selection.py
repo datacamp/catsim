@@ -712,7 +712,7 @@ class The54321Selector(FiniteSelector):
 
         # sort item indexes by their information value and remove indexes of administered items
         organized_items = [
-            x for x in irt.inf_hpc(est_theta, items).argsort() if x not in administered_items
+            x for x in reversed(irt.inf_hpc(est_theta, items).argsort()) if x not in administered_items
         ]
 
         bin_size = self._test_size - len(administered_items)
@@ -721,7 +721,7 @@ class The54321Selector(FiniteSelector):
             warn('There are no more items to apply.')
             return None
 
-        return numpy.random.choice(organized_items[0:bin_size])
+        return numpy.random.choice(organized_items[:-bin_size])
 
 
 class RandomesqueSelector(Selector):
@@ -775,7 +775,7 @@ class RandomesqueSelector(Selector):
 
         # sort item indexes by their information value and remove indexes of administered items
         organized_items = [
-            x for x in irt.inf_hpc(est_theta, items).argsort() if x not in administered_items
+            x for x in (-irt.inf_hpc(est_theta, items)).argsort() if x not in administered_items
         ]
 
         if len(organized_items) == 0:
