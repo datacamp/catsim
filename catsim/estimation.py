@@ -15,13 +15,19 @@ class HillClimbingEstimator(Estimator):
     def __str__(self):
         return 'Hill Climbing Estimator'
 
-    def __init__(self, precision: int = 6, dodd: bool = False, verbose: bool = False):
+    def __init__(self,
+            precision: int = 6,
+            dodd: bool = False,
+            bounds: tuple = (-6, 6),
+            verbose: bool = False
+            ):
         super().__init__()
         self._precision = precision
         self._verbose = verbose
         self._evaluations = 0
         self._calls = 0
         self._dodd = dodd
+        self._bounds = bounds
 
     @property
     def calls(self) -> float:
@@ -89,19 +95,14 @@ class HillClimbingEstimator(Estimator):
         self._calls += 1
 
         if len(set(response_vector)) == 1 and self._dodd:
-            return cat.dodd(est_theta, self.simulator.items, response_vector[-1])
+            return cat.dodd(est_theta, items, response_vector[-1])
 
         if set(response_vector) == 1:
             return float('inf')
         elif set(response_vector) == 0:
             return float('-inf')
 
-        if len(administered_items) > 0:
-            lower_bound = min(items[administered_items][:, 1])
-            upper_bound = max(items[administered_items][:, 1])
-        else:
-            lower_bound = min(items[:, 1])
-            upper_bound = max(items[:, 1])
+        lower_bound, upper_bound = self._bounds
 
         best_theta = float('-inf')
         max_ll = float('-inf')
@@ -137,6 +138,8 @@ class HillClimbingEstimator(Estimator):
                 else:
                     lower_bound = best_theta - (intervals[1] - intervals[0])
                     upper_bound = ii
+                    # reset best_theta, in case optimum is to the left of it
+                    max_ll = float('-inf')
                     break
 
         return best_theta
