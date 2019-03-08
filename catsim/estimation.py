@@ -138,6 +138,8 @@ class HillClimbingEstimator(Estimator):
                 else:
                     lower_bound = best_theta - (intervals[1] - intervals[0])
                     upper_bound = ii
+                    # reset best_theta, in case optimum is to the left of it
+                    max_ll = float('-inf')
                     break
 
         return best_theta
