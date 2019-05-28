@@ -94,15 +94,23 @@ class HillClimbingEstimator(Estimator):
 
         self._calls += 1
 
+        # need to constrain all estimates between these bounds, rather then, e.g.
+        # min / max difficulties
+        lower_bound, upper_bound = self._bounds
+
         if len(set(response_vector)) == 1 and self._dodd:
-            return cat.dodd(est_theta, items, response_vector[-1])
+            # append bounds in mock "items", so that the dodd procedure will
+            # at least step toward the bounds we set. Note that this is stretching
+            # the use of the term dodd.
+            min_item = [0, lower_bound, 0, 0]
+            max_item = [0, upper_bound, 0, 0]
+            bound_items = numpy.vstack([min_item, max_item])
+            return cat.dodd(est_theta, bound_items, response_vector[-1])
 
         if set(response_vector) == 1:
             return float('inf')
         elif set(response_vector) == 0:
             return float('-inf')
-
-        lower_bound, upper_bound = self._bounds
 
         best_theta = float('-inf')
         max_ll = float('-inf')
