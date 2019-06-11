@@ -58,6 +58,10 @@ class HillClimbingEstimator(Estimator):
         :returns: boolean value indicating if Dodd's method will be used or not."""
         return self._dodd
 
+    def _bound_estimate(self, estimate):
+        lbound, ubound = self._bounds
+        return min(max(estimate, lbound), ubound)
+
     def estimate(
         self,
         index: int = None,
@@ -139,7 +143,7 @@ class HillClimbingEstimator(Estimator):
                         )
 
                     if abs(best_theta - ii) < float('1e-' + str(self._precision)):
-                        return ii
+                        return self._bound_estimate(ii)
 
                     best_theta = ii
 
@@ -150,7 +154,7 @@ class HillClimbingEstimator(Estimator):
                     max_ll = float('-inf')
                     break
 
-        return best_theta
+        return self._bound_estimate(best_theta)
 
 
 class DifferentialEvolutionEstimator(Estimator):
