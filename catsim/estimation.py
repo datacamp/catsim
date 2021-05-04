@@ -301,7 +301,6 @@ class BayesianEstimator(Estimator):
         items: numpy.ndarray = None,
         administered_items: list = None,
         response_vector: list = None,
-        est_theta: float = None,
         **kwargs
     ) -> float:
         """Returns the theta value that minimizes the negative log-likelihood function, given the current state of the
