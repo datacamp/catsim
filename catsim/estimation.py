@@ -303,8 +303,9 @@ class BayesianEstimator(Estimator):
         response_vector: list = None,
         **kwargs
     ) -> float:
-        """Returns the theta value that minimizes the negative log-likelihood function, given the current state of the
-         test for the given examinee.
+        """Returns the theta value that corresponds to the maximum a posteriori estimate, given the current state of the
+         test for the given examinee. The posterior is obtained from summing the log-likelihood and the log of the normal
+         density function.
 
         :param index: index of the current examinee in the simulator
         :param items: a matrix containing item parameters in the format that `catsim` understands
@@ -312,7 +313,7 @@ class BayesianEstimator(Estimator):
         :param administered_items: a list containing the indexes of items that were already administered
         :param response_vector: a boolean list containing the examinee's answers to the administered items
         :param est_theta: a float containing the current estimated proficiency
-        :returns: the current :math:`\\hat\\theta`
+        :returns: the current theta estimate (based on the bounded MAP estimate)
         """
         if (index is None or self.simulator is None) and (
             items is None and administered_items is None or response_vector is None or
