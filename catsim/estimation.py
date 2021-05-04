@@ -348,7 +348,7 @@ class BayesianEstimator(Estimator):
 
             for ii in intervals:
                 self._evaluations += 1
-                ll = irt.log_likelihood(ii, response_vector, items[administered_items]) + numpy.log(norm.pdf(ii, loc = self._prior_mean, scale = self._prior_sd))
+                ll = irt.log_likelihood(ii, response_vector, items[administered_items]) + norm.logpdf(ii, loc = self._prior_mean, scale = self._prior_sd)
                 if ll > max_ll:
                     max_ll = ll
 
