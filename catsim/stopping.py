@@ -1,5 +1,5 @@
 import numpy
-
+from scipy import stats
 from catsim import irt
 from catsim.simulation import Stopper
 
@@ -78,3 +78,46 @@ class MinErrorStopper(Stopper):
             return False
 
         return irt.see(theta, administered_items) < self._min_error
+
+class MinConfidenceStopper(Stopper):
+    """Stopping criterion for minimum confidence that theta exceeds a threshold
+
+    :param min_confidence: the minimum confidence that the user exceeds the threshold the test must achieve before stopping
+    :param theta_threshold: value of theta that needs to be exceeded with a particular confidence level before stopping"""
+
+    def __str__(self):
+        return 'Minimum Confidence Initializer'
+
+    def __init__(self, min_confidence: float, theta_threshold: float = 1.):
+        super(MinConfidenceStopper, self).__init__()
+        self._min_confidence = min_confidence
+        self._theta_threshold = theta_threshold
+
+    def stop(
+        self,
+        index: int = None,
+        administered_items: numpy.ndarray = None,
+        theta: float = None,
+        **kwargs
+    ) -> bool:
+        """Checks whether the test reached its stopping criterion
+
+        :param index: the index of the current examinee
+        :param administered_items: a matrix containing the parameters of items that were already administered
+        :param theta: a float containing the a proficiency value to which the error will be calculated
+        :returns: `True` if the test met its stopping criterion, else `False`"""
+
+        if (index is None or
+            self.simulator is None) and (administered_items is None or theta is None):
+            raise ValueError
+
+        if administered_items is None and theta is None:
+            theta = self.simulator.latest_estimations[index]
+            administered_items = self.simulator.items[self.simulator.administered_items[index]]
+
+        if theta is None:
+            return False
+
+        crnt_se = irt.see(theta, administered_items)
+        crnt_confidence = 1 - stats.norm.cdf(self._theta_threshold, loc = theta, scale = crnt_se)
+        return crnt_confidence > self._min_confidence
